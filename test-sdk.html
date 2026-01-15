@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDK Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .btn {
+            background: #4f46e5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #4338ca;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f3f4f6;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Payment Gateway SDK Test</h1>
+    <p>Click the button below to test the embeddable SDK:</p>
+
+    <button id="pay-button" class="btn">Pay ₹500.00</button>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script src="http://localhost:3001/checkout.js"></script>
+    <script>
+        document.getElementById('pay-button').addEventListener('click', function () {
+            const checkout = new PaymentGateway({
+                key: 'key_test_abc123',
+                orderId: 'order_test_123',
+                onSuccess: function (response) {
+                    console.log('Payment successful:', response);
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result').style.background = '#d1fae5';
+                    document.getElementById('result').innerHTML = '<strong>Success!</strong> Payment ID: ' + response.paymentId;
+                },
+                onFailure: function (error) {
+                    console.log('Payment failed:', error);
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result').style.background = '#fee2e2';
+                    document.getElementById('result').innerHTML = '<strong>Failed!</strong> ' + JSON.stringify(error);
+                },
+                onClose: function () {
+                    console.log('Payment modal closed');
+                }
+            });
+
+            checkout.open();
+        });
+    </script>
+</body>
+
+</html>

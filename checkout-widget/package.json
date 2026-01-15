@@ -1,0 +1,14 @@
+{
+    "name": "payment-gateway-sdk",
+    "version": "2.0.0",
+    "description": "Embeddable Payment Gateway SDK",
+    "main": "dist/checkout.js",
+    "scripts": {
+        "build": "webpack --mode production",
+        "dev": "webpack --mode development --watch"
+    },
+    "devDependencies": {
+        "webpack": "^5.104.1",
+        "webpack-cli": "^5.1.4"
+    }
+}
