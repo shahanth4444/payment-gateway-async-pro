@@ -4,71 +4,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDK Test Page</title>
+    <title>Payment Gateway SDK Test</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             max-width: 800px;
             margin: 50px auto;
             padding: 20px;
+            background: #f5f5f5;
         }
 
-        .btn {
-            background: #4f46e5;
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .product {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .product-details h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .product-details p {
+            margin: 0;
+            color: #666;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-left: auto;
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 30px;
             border: none;
             border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .btn:hover {
-            background: #4338ca;
+        .pay-button:hover {
+            transform: translateY(-2px);
         }
 
-        .result {
+        .pay-button:active {
+            transform: translateY(0);
+        }
+
+        .status {
             margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .code-block {
+            background: #f8f9fa;
             padding: 15px;
-            border-radius: 8px;
-            background: #f3f4f6;
+            border-radius: 6px;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .code-block h4 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .code-block pre {
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
         }
     </style>
 </head>
 
 <body>
-    <h1>Payment Gateway SDK Test</h1>
-    <p>Click the button below to test the embeddable SDK:</p>
+    <div class="container">
+        <h1>🛒 Test Merchant Store</h1>
+        <p class="subtitle">Payment Gateway SDK Integration Demo</p>
 
-    <button id="pay-button" class="btn">Pay ₹500.00</button>
+        <div class="product">
+            <div class="product-image">📱</div>
+            <div class="product-details">
+                <h3>Premium Smartphone</h3>
+                <p>Latest model with advanced features</p>
+            </div>
+            <div class="price">₹1,000.00</div>
+        </div>
 
-    <div id="result" class="result" style="display: none;"></div>
+        <button id="pay-button" class="pay-button">
+            💳 Pay with Payment Gateway
+        </button>
 
+        <div id="status" class="status"></div>
+
+        <div class="code-block">
+            <h4>📝 Integration Code</h4>
+            <pre><code>&lt;script src="http://localhost:3001/checkout.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const checkout = new PaymentGateway({
+    key: 'key_test_abc123',
+    orderId: 'order_demo_123',
+    onSuccess: (response) => {
+      console.log('Payment successful!', response);
+    },
+    onFailure: (error) => {
+      console.log('Payment failed:', error);
+    }
+  });
+  
+  document.getElementById('pay-button')
+    .addEventListener('click', () => checkout.open());
+&lt;/script&gt;</code></pre>
+        </div>
+    </div>
+
+    <!-- Load Payment Gateway SDK -->
     <script src="http://localhost:3001/checkout.js"></script>
+
     <script>
-        document.getElementById('pay-button').addEventListener('click', function () {
-            const checkout = new PaymentGateway({
+        // Create order first
+        async function createOrder() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/orders', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': 'key_test_abc123',
+                        'X-Api-Secret': 'secret_test_xyz789',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: 100000, // ₹1,000.00
+                        currency: 'INR',
+                        receipt: 'test_sdk_demo_' + Date.now()
+                    })
+                });
+
+                const order = await response.json();
+                return order.id;
+            } catch (error) {
+                console.error('Error creating order:', error);
+                showStatus('Error creating order', 'error');
+                return null;
+            }
+        }
+
+        // Initialize Payment Gateway
+        let checkout = null;
+
+        document.getElementById('pay-button').addEventListener('click', async function () {
+            const button = this;
+            button.disabled = true;
+            button.textContent = 'Creating order...';
+
+            // Create order
+            const orderId = await createOrder();
+
+            if (!orderId) {
+                button.disabled = false;
+                button.textContent = '💳 Pay with Payment Gateway';
+                return;
+            }
+
+            button.textContent = '💳 Pay with Payment Gateway';
+            button.disabled = false;
+
+            // Initialize SDK with order ID
+            checkout = new PaymentGateway({
                 key: 'key_test_abc123',
-                orderId: 'order_test_123',
+                orderId: orderId,
+                checkoutUrl: 'http://localhost:3001',
                 onSuccess: function (response) {
-                    console.log('Payment successful:', response);
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('result').style.background = '#d1fae5';
-                    document.getElementById('result').innerHTML = '<strong>Success!</strong> Payment ID: ' + response.paymentId;
+                    console.log('✅ Payment successful!', response);
+                    showStatus('✅ Payment successful! Payment ID: ' + response.paymentId, 'success');
                 },
                 onFailure: function (error) {
-                    console.log('Payment failed:', error);
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('result').style.background = '#fee2e2';
-                    document.getElementById('result').innerHTML = '<strong>Failed!</strong> ' + JSON.stringify(error);
+                    console.log('❌ Payment failed:', error);
+                    showStatus('❌ Payment failed: ' + (error.error || 'Unknown error'), 'error');
                 },
                 onClose: function () {
-                    console.log('Payment modal closed');
+                    console.log('Modal closed');
                 }
             });
 
+            // Open payment modal
             checkout.open();
         });
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
     </script>
 </body>
 

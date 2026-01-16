@@ -1,24 +1,31 @@
 const path = require('path');
 
 module.exports = {
+    mode: 'production',
     entry: './src/sdk/PaymentGateway.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'checkout.js',
-        library: {
-            name: 'PaymentGateway',
-            type: 'umd',
-            export: 'default',
-        },
-        globalObject: 'this',
+        library: 'PaymentGateway',
+        libraryTarget: 'umd',
+        libraryExport: 'default',
+        globalObject: 'this'
     },
-    mode: 'production',
     module: {
         rules: [
             {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
-            },
-        ],
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
+            }
+        ]
     },
+    optimization: {
+        minimize: true
+    }
 };
