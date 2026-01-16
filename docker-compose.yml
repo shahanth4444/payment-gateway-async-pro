@@ -38,8 +38,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 8000
-      DATABASE_URL: postgresql://gateway_user:gateway_pass@postgres:5432/payment_gateway
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://gateway_user:gateway_pass@postgres_gateway:5432/payment_gateway
+      REDIS_URL: redis://redis_gateway:6379
       TEST_MODE: "false"
       TEST_PROCESSING_DELAY: "1000"
       TEST_PAYMENT_SUCCESS: "true"
@@ -62,8 +62,8 @@ services:
     container_name: gateway_worker
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://gateway_user:gateway_pass@postgres:5432/payment_gateway
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://gateway_user:gateway_pass@postgres_gateway:5432/payment_gateway
+      REDIS_URL: redis://redis_gateway:6379
       TEST_MODE: "false"
       TEST_PROCESSING_DELAY: "1000"
       TEST_PAYMENT_SUCCESS: "true"

@@ -1,9 +1,12 @@
 const Queue = require('bull');
 const Redis = require('ioredis');
 
+// Parse Redis URL for Docker networking
+const redisUrl = process.env.REDIS_URL || 'redis://redis_gateway:6379';
+
 // Redis client configuration
 const redisConfig = {
-    redis: process.env.REDIS_URL || 'redis://localhost:6379',
+    redis: redisUrl,
     defaultJobOptions: {
         attempts: 3,
         backoff: {
@@ -21,14 +24,14 @@ const webhookQueue = new Queue('webhook-delivery', redisConfig);
 const refundQueue = new Queue('refund-processing', redisConfig);
 
 // Redis client for direct operations
-const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const redisClient = new Redis(redisUrl);
 
 redisClient.on('connect', () => {
-    console.log('✅ Redis connected');
+    console.log('✅ Redis connected successfully');
 });
 
 redisClient.on('error', (err) => {
-    console.error('❌ Redis error:', err);
+    console.error('❌ Redis connection error:', err.message);
 });
 
 module.exports = {
