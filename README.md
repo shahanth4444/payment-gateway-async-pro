@@ -452,6 +452,145 @@ Webhook Secret: whsec_test_abc123
 
 ---
 
+## 🎬 Demonstration
+
+### Option 1: Merchant Dashboard (No Coding Required)
+
+For merchants who want to create orders without writing code:
+
+1. **Open Merchant Dashboard:**
+   ```
+   Open: merchant-dashboard.html (in project root)
+   ```
+
+2. **Create an Order:**
+   - Enter amount (e.g., 500 for ₹500)
+   - Enter customer name (optional)
+   - Click "Create Order & Get Checkout Link"
+
+3. **Share Checkout Link:**
+   - Copy the generated checkout URL
+   - Share with your customer
+
+4. **Customer Completes Payment:**
+   - Customer opens the checkout link
+   - Enters UPI ID: `success@paytm` (for testing)
+   - Clicks "Pay Now"
+   - Sees "Payment successful!"
+
+5. **View Webhook Logs:**
+   - Go to http://localhost:3000/webhooks
+   - See `payment.success` event logged
+
+### Option 2: API Integration (For Developers)
+
+Complete flow using API calls:
+
+```bash
+# Step 1: Create Order
+curl -X POST http://localhost:8000/api/v1/orders \
+  -H "X-Api-Key: key_test_abc123" \
+  -H "X-Api-Secret: secret_test_xyz789" \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 50000, "currency": "INR", "receipt": "demo_001"}'
+
+# Response: {"id": "order_xyz123", ...}
+
+# Step 2: Create Payment
+curl -X POST http://localhost:8000/api/v1/payments \
+  -H "X-Api-Key: key_test_abc123" \
+  -H "X-Api-Secret: secret_test_xyz789" \
+  -H "Idempotency-Key: unique_$(date +%s)" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "order_xyz123",
+    "method": "upi",
+    "vpa": "success@paytm"
+  }'
+
+# Response: {"id": "pay_abc456", "status": "pending", ...}
+
+# Step 3: Wait for async processing (5 seconds)
+sleep 5
+
+# Step 4: Check payment status
+curl http://localhost:8000/api/v1/payments/pay_abc456 \
+  -H "X-Api-Key: key_test_abc123" \
+  -H "X-Api-Secret: secret_test_xyz789"
+
+# Response: {"id": "pay_abc456", "status": "success", ...}
+
+# Step 5: View webhook logs
+curl http://localhost:8000/api/v1/webhooks?limit=5 \
+  -H "X-Api-Key: key_test_abc123" \
+  -H "X-Api-Secret: secret_test_xyz789"
+```
+
+### Option 3: SDK Integration (Embedded Widget)
+
+For merchants who want to embed payments on their website:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Store</title>
+    <script src="http://localhost:3001/checkout.js"></script>
+</head>
+<body>
+    <button id="payButton">Pay ₹500</button>
+    
+    <script>
+        document.getElementById('payButton').onclick = async function() {
+            // 1. Create order from your backend
+            const response = await fetch('http://localhost:8000/api/v1/orders', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': 'key_test_abc123',
+                    'X-Api-Secret': 'secret_test_xyz789',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: 50000,
+                    currency: 'INR',
+                    receipt: 'order_001'
+                })
+            });
+            const order = await response.json();
+            
+            // 2. Open payment gateway modal
+            const checkout = new PaymentGateway({
+                key: 'key_test_abc123',
+                orderId: order.id,
+                onSuccess: (data) => {
+                    alert('Payment successful! ID: ' + data.paymentId);
+                },
+                onFailure: (error) => {
+                    alert('Payment failed: ' + error.error);
+                }
+            });
+            
+            checkout.open();
+        };
+    </script>
+</body>
+</html>
+```
+
+### Visual Flow
+
+```
+Merchant Dashboard → Create Order → Get Checkout Link
+                                          ↓
+Customer → Open Link → Enter UPI → Pay Now → Success!
+                                          ↓
+Worker → Process Payment (2s) → Update Status → Create Webhook
+                                          ↓
+Merchant → Receives Webhook → Marks Order Complete
+```
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -535,9 +674,9 @@ payment-gateway-async-pro/
 ├── 📄 docker-compose.yml                 # 6-Service Orchestration
 ├── 📄 submission.yml                     # Evaluation Configuration
 ├── 📄 README.md                          # This file (comprehensive docs)
+├── 📄 merchant-dashboard.html            # No-code order creation UI
 ├── 📄 .env.example                       # Environment variables template
-├── 📄 .gitignore                         # Git ignore rules
-└── 📄 test-sdk.html                      # SDK test page
+└── 📄 .gitignore                         # Git ignore rules
 
 **Total:** 50+ files | 3,000+ lines of code | 6 microservices
 ```

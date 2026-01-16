@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Dashboard - Create Orders</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #fff9e6;
+            border-left: 3px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-box strong {
+            color: #333;
+        }
+
+        .form-section {
+            background: #fafbfc;
+            padding: 30px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .form-section h2 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0366d6;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+        }
+
+        .create-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .create-btn:hover {
+            background: #0256c7;
+        }
+
+        .create-btn:active {
+            background: #024aa8;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .orders-list {
+            margin-top: 30px;
+        }
+
+        .orders-list h2 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #0366d6;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .order-amount {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .order-customer {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .checkout-link {
+            padding: 8px 16px;
+            background: #0366d6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .checkout-link:hover {
+            background: #0256c7;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💼 Merchant Dashboard</h1>
+        <p class="subtitle">Create orders without coding - No technical knowledge required!</p>
+
+        <div class="info-box">
+            <strong>📝 How to use:</strong><br>
+            1. Enter amount and customer name<br>
+            2. Click "Create Order"<br>
+            3. Share the checkout link with your customer<br>
+            4. Customer pays on the checkout page<br>
+            5. You receive webhook notification
+        </div>
+
+        <div class="form-section">
+            <h2>Create New Order</h2>
+
+            <div class="form-group">
+                <label for="amount">Amount (₹)</label>
+                <input type="number" id="amount" placeholder="Enter amount (e.g., 500)" min="1" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="customerName">Customer Name (Optional)</label>
+                <input type="text" id="customerName" placeholder="Enter customer name">
+            </div>
+
+            <button class="create-btn" onclick="createOrder()">
+                Create Order & Get Checkout Link
+            </button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="orders-list">
+            <h2>Recent Orders</h2>
+            <div id="ordersList"></div>
+        </div>
+    </div>
+
+    <script>
+        const orders = [];
+
+        async function createOrder() {
+            const amount = document.getElementById('amount').value;
+            const customerName = document.getElementById('customerName').value || 'Customer';
+            const statusDiv = document.getElementById('status');
+
+            if (!amount || amount <= 0) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Please enter a valid amount';
+                return;
+            }
+
+            statusDiv.className = 'status success';
+            statusDiv.textContent = '⏳ Creating order...';
+
+            try {
+                const amountInPaise = Math.round(parseFloat(amount) * 100);
+
+                const response = await fetch('http://localhost:8000/api/v1/orders', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': 'key_test_abc123',
+                        'X-Api-Secret': 'secret_test_xyz789',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: amountInPaise,
+                        currency: 'INR',
+                        receipt: `${customerName}_${Date.now()}`
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create order');
+                }
+
+                const order = await response.json();
+
+                orders.unshift({
+                    id: order.id,
+                    amount: amount,
+                    customerName: customerName,
+                    checkoutUrl: `http://localhost:3001/?order_id=${order.id}`
+                });
+
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ Order created successfully! Order ID: ${order.id}`;
+
+                // Clear form
+                document.getElementById('amount').value = '';
+                document.getElementById('customerName').value = '';
+
+                // Update orders list
+                displayOrders();
+
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function displayOrders() {
+            const ordersList = document.getElementById('ordersList');
+
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<div class="empty-state">No orders yet. Create your first order above!</div>';
+                return;
+            }
+
+            ordersList.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-info">
+                        <div class="order-id">Order ID: ${order.id}</div>
+                        <div class="order-amount">₹${order.amount}</div>
+                        <div class="order-customer">Customer: ${order.customerName}</div>
+                    </div>
+                    <a href="${order.checkoutUrl}" target="_blank" class="checkout-link">
+                        Open Checkout →
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        displayOrders();
+    </script>
+</body>
+
+</html>
