@@ -43,7 +43,15 @@ async function deliverWebhook(job) {
         const currentAttempts = log.attempts + 1;
 
         // Generate signature
-        const signature = generateWebhookSignature(payload, merchant.webhook_secret);
+        const payloadString = JSON.stringify(payload);
+        const crypto = require('crypto');
+        const signature = crypto
+            .createHmac('sha256', merchant.webhook_secret)
+            .update(payloadString)
+            .digest('hex');
+
+        console.log('DEBUG SENDER Payload:', payloadString);
+        console.log('DEBUG SENDER Sig:', signature);
 
         // Send webhook
         let responseCode = null;
@@ -51,7 +59,7 @@ async function deliverWebhook(job) {
         let deliverySuccess = false;
 
         try {
-            const response = await axios.post(merchant.webhook_url, payload, {
+            const response = await axios.post(merchant.webhook_url, payloadString, {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Webhook-Signature': signature,
